@@ -1,0 +1,473 @@
+{
+	"info": {
+		"_postman_id": "3deec4cd-4d61-40a8-b26b-681858fc7462",
+		"name": "go-arcaptcha-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28066717",
+		"_collection_link": "https://www.postman.com/qnegasht/workspace/goarcaptchaservice/collection/28066717-3deec4cd-4d61-40a8-b26b-681858fc7462?action=share&source=collection_link&creator=28066717"
+	},
+	"item": [
+		{
+			"name": "Ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/ping",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fake Arcaptcha - New Challenge",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });",
+							"var data = pm.response.json();",
+							"pm.collectionVariables.set(\"challenge_id\", data.challenge_id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/__fake/arcaptcha/challenge",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"__fake",
+						"arcaptcha",
+						"challenge"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fake Arcaptcha - Verify Challenge",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"challenge_id\": \"{{challenge_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/__fake/arcaptcha/verify",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"__fake",
+						"arcaptcha",
+						"verify"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User (valid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 201\", function () { pm.response.to.have.status(201); });\r",
+							"var data = pm.response.json();\r",
+							"pm.collectionVariables.set(\"user_id\", data.data.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"alice2\", // unique\n  \"email\": \"alice2@example.com\", // unique\n  \"bio\": \"demo user\",\n  \"gender\": \"female\",\n  \"nationality\": \"US\",\n  \"challenge_id\": \"{{challenge_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User (missing captcha) - expect 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 400\", function () { pm.response.to.have.status(400); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"no-captcha\",\n  \"email\": \"no-captcha@example.com\",\n  \"bio\": \"should fail\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User (bad captcha) - expect 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 400\", function () { pm.response.to.have.status(400); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"bad-captcha\",\n  \"email\": \"bad-captcha@example.com\",\n  \"bio\": \"should fail\",\n  \"challenge_id\": \"invalid\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Users with pagination/search",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users?page=1&page_size=5&sort=-created_at&search=ali",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "page_size",
+							"value": "5"
+						},
+						{
+							"key": "sort",
+							"value": "-created_at"
+						},
+						{
+							"key": "search",
+							"value": "ali"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Users filtered by nationality",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users?nationality=IR&page_size=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "nationality",
+							"value": "IR"
+						},
+						{
+							"key": "page_size",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User (by id)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User (PATCH)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bio\": \"updated bio\",\n  \"gender\": \"female\",\n  \"challenge_id\": \"{{challenge_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/users/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Group Users by gender",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/group?group_by=gender",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"group"
+					],
+					"query": [
+						{
+							"key": "group_by",
+							"value": "gender"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Group Users by gender,nationality",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status 200\", function () { pm.response.to.have.status(200); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/group?group_by=gender,nationality",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"group"
+					],
+					"query": [
+						{
+							"key": "group_by",
+							"value": "gender,nationality"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8080"
+		},
+		{
+			"key": "challenge_id",
+			"value": ""
+		},
+		{
+			"key": "user_id",
+			"value": "1"
+		}
+	]
+}
