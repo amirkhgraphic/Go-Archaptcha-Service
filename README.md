@@ -8,9 +8,17 @@ Small Gin + Gorm service that demonstrates arcaptcha-like validation and basic C
 3) Seed test data (Optional): `go run seeds/seed_users.go` will insert a handful of demo users (idempotent).
 4) Start the API: `go run main.go` (listens on `:8080`).
 
+### Docker one-liner
+Build and run (reads `.env` from project root, runs migrations by default, optional seeding):
+```bash
+docker build -f docker/Dockerfile -t go-arcaptcha-service .
+docker run --rm -p 8080:8080 -v $(pwd)/data:/data --env-file .env go-arcaptcha-service
+```
+Set `RUN_SEED=1` in `.env` to preload the sample users.
+
 ### Docker Compose
 ```bash
-docker compose up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 Environment defaults come from `.env` (copy from `.env.example`).
 

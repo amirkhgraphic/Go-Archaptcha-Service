@@ -1,8 +1,8 @@
 FROM golang:1.22 AS builder
 
 ENV GOTOOLCHAIN=auto
-
 WORKDIR /app
+
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -17,7 +17,7 @@ WORKDIR /app
 ENV PORT=8080
 ENV DB_PATH=/data/data.db
 ENV RUN_MIGRATIONS=1
-ENV DOCKER_RUN_SEED=0
+ENV RUN_SEED=0
 
 RUN addgroup -S app && adduser -S app -G app
 RUN mkdir -p /data && chown -R app:app /data /app
@@ -25,7 +25,7 @@ RUN mkdir -p /data && chown -R app:app /data /app
 COPY --from=builder /app/bin/server /app/server
 COPY --from=builder /app/bin/migrate /app/migrate
 COPY --from=builder /app/bin/seed /app/seed
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+COPY docker/docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
 USER app

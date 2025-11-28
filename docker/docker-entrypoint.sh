@@ -1,13 +1,11 @@
 #!/bin/sh
 set -e
 
+# Load .env if present (mounted into /app/.env)
 if [ -f /app/.env ]; then
-  echo "Loading .env file..."
   set -a
   . /app/.env
   set +a
-else
-  echo "SKIP loading .env file..."
 fi
 
 DB_PATH="${DB_PATH:-/data/data.db}"
