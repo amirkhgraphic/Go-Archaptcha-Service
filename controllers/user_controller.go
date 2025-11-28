@@ -47,6 +47,14 @@ type pagination struct {
 	Filters    gin.H  `json:"filters,omitempty"`
 }
 
+// CreateUser creates a new user after captcha validation.
+// @Summary Create user
+// @Accept json
+// @Produce json
+// @Param payload body createUserRequest true "User payload"
+// @Success 201 {object} controllers.UserDoc
+// @Failure 400 {object} controllers.ErrorResponse
+// @Router /api/users [post]
 func CreateUser(c *gin.Context) {
 	var req createUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -79,6 +87,17 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": user})
 }
 
+// ListUsers returns paginated users with search/filter options.
+// @Summary List users
+// @Produce json
+// @Param page query int false "page"
+// @Param page_size query int false "page size"
+// @Param sort query string false "sort (e.g. -created_at)"
+// @Param search query string false "search in username/email"
+// @Param username query string false "filter by username"
+// @Param email query string false "filter by email"
+// @Success 200 {object} controllers.UserListResponseDoc
+// @Router /api/users [get]
 func ListUsers(c *gin.Context) {
 	page := parsePositiveInt(c.DefaultQuery("page", "1"), 1)
 	pageSize := parsePositiveInt(c.DefaultQuery("page_size", "10"), 10)
@@ -139,6 +158,13 @@ func ListUsers(c *gin.Context) {
 	})
 }
 
+// GetUser fetches a user by id.
+// @Summary Get user
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} controllers.UserDoc
+// @Failure 400 {object} controllers.ErrorResponse
+// @Router /api/users/{id} [get]
 func GetUser(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
@@ -153,6 +179,15 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": user})
 }
 
+// UpdateUser updates a user after captcha validation.
+// @Summary Update user
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param payload body updateUserRequest true "Fields to update"
+// @Success 200 {object} controllers.UserDoc
+// @Failure 400 {object} controllers.ErrorResponse
+// @Router /api/users/{id} [patch]
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 

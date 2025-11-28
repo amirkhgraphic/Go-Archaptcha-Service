@@ -3,8 +3,15 @@ package main
 import (
 	"github.com/amirkhgraphic/go-arcaptcha-service/controllers"
 	"github.com/amirkhgraphic/go-arcaptcha-service/initializers"
+	_ "github.com/amirkhgraphic/go-arcaptcha-service/docs"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title Arcaptcha Service API
+// @version 1.0
+// @BasePath /
 
 func init() {
 	initializers.LoadEnvVariables()
@@ -37,6 +44,9 @@ func main() {
 
 		api.GET("/users/group", controllers.GroupUsers)
 	}
+
+	// Serve swagger UI (uses the bundled docs/swagger.json)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// listens on 0.0.0.0:8080 by default
 	router.Run()

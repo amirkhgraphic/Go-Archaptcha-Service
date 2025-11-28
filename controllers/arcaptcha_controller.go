@@ -8,6 +8,10 @@ import (
 )
 
 // GenerateFakeChallenge provides a throwaway challenge_id for testing local flows.
+// @Summary Get a fake arcaptcha challenge
+// @Produce json
+// @Success 200 {object} controllers.ChallengeResponse
+// @Router /__fake/arcaptcha/challenge [get]
 func GenerateFakeChallenge(c *gin.Context) {
 	token := services.Arcaptcha.GenerateChallenge()
 	c.JSON(http.StatusOK, gin.H{
@@ -17,10 +21,15 @@ func GenerateFakeChallenge(c *gin.Context) {
 }
 
 // VerifyFakeChallenge lets you check a token without consuming it.
+// @Summary Verify a fake arcaptcha challenge
+// @Accept json
+// @Produce json
+// @Param payload body controllers.ChallengeVerifyRequest true "challenge_id"
+// @Success 200 {object} controllers.ChallengeVerifyResponse
+// @Failure 400 {object} controllers.ErrorResponse
+// @Router /__fake/arcaptcha/verify [post]
 func VerifyFakeChallenge(c *gin.Context) {
-	var body struct {
-		ChallengeID string `json:"challenge_id"`
-	}
+	var body ChallengeVerifyRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
 		return

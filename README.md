@@ -46,3 +46,7 @@ curl -X POST http://localhost:8080/api/users \
 
 ## Postman collection
 Import `docs/postman_collection.json` and set `base_url` (default `http://localhost:8080`) and `challenge_id` variables. Use the fake arcaptcha endpoints to refresh tokens for protected requests.
+
+## Swagger
+- Static UI: `http://localhost:8080/swagger/index.html` (doc is served from `docs/swagger.json`).
+- To regenerate using swaggo, add/update comments then run `swag init -g main.go -o docs` (binary installed via `go install github.com/swaggo/swag/cmd/swag@latest`).

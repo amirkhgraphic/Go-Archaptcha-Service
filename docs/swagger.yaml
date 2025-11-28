@@ -1,0 +1,276 @@
+basePath: /
+definitions:
+  controllers.ChallengeResponse:
+    properties:
+      challenge_id:
+        type: string
+      note:
+        type: string
+    type: object
+  controllers.ChallengeVerifyRequest:
+    properties:
+      challenge_id:
+        type: string
+    type: object
+  controllers.ChallengeVerifyResponse:
+    properties:
+      error:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  controllers.ErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  controllers.GroupUsersResponseDoc:
+    properties:
+      data:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      group_by:
+        items:
+          type: string
+        type: array
+    type: object
+  controllers.PaginationDoc:
+    properties:
+      filters:
+        additionalProperties:
+          type: string
+        type: object
+      page:
+        type: integer
+      page_size:
+        type: integer
+      search:
+        type: string
+      sort:
+        type: string
+      total_items:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  controllers.UserDoc:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      nationality:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.UserListResponseDoc:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/controllers.UserDoc'
+        type: array
+      meta:
+        $ref: '#/definitions/controllers.PaginationDoc'
+    type: object
+  controllers.createUserRequest:
+    properties:
+      bio:
+        type: string
+      challenge_id:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      nationality:
+        type: string
+      username:
+        type: string
+    required:
+    - challenge_id
+    - email
+    - username
+    type: object
+  controllers.updateUserRequest:
+    properties:
+      bio:
+        type: string
+      challenge_id:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      nationality:
+        type: string
+      username:
+        type: string
+    required:
+    - challenge_id
+    type: object
+info:
+  contact: {}
+  title: Arcaptcha Service API
+  version: "1.0"
+paths:
+  /__fake/arcaptcha/challenge:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ChallengeResponse'
+      summary: Get a fake arcaptcha challenge
+  /__fake/arcaptcha/verify:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: challenge_id
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.ChallengeVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ChallengeVerifyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Verify a fake arcaptcha challenge
+  /api/users:
+    get:
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: page_size
+        type: integer
+      - description: sort (e.g. -created_at)
+        in: query
+        name: sort
+        type: string
+      - description: search in username/email
+        in: query
+        name: search
+        type: string
+      - description: filter by username
+        in: query
+        name: username
+        type: string
+      - description: filter by email
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserListResponseDoc'
+      summary: List users
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.UserDoc'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Create user
+  /api/users/{id}:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserDoc'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get user
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.updateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserDoc'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Update user
+  /api/users/group:
+    get:
+      description: Aggregate users by gender/nationality
+      parameters:
+      - description: Comma separated fields (gender,nationality)
+        in: query
+        name: group_by
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GroupUsersResponseDoc'
+      summary: Group users
+swagger: "2.0"

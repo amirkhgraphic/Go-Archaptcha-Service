@@ -10,7 +10,11 @@ import (
 )
 
 // GroupUsers aggregates users by the specified fields (gender, nationality) directly from the DB.
-// Example: GET /api/users/group?group_by=gender,nationality
+// @Summary Group users
+// @Description Aggregate users by gender/nationality
+// @Param group_by query string false "Comma separated fields (gender,nationality)"
+// @Success 200 {object} controllers.GroupUsersResponseDoc
+// @Router /api/users/group [get]
 func GroupUsers(c *gin.Context) {
 	groupBy := parseGroupBy(c.DefaultQuery("group_by", "gender,nationality"))
 	if len(groupBy) == 0 {
