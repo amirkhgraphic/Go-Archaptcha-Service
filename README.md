@@ -8,6 +8,14 @@ Small Gin + Gorm service that demonstrates arcaptcha-like validation and basic C
 3) Seed test data (Optional): `go run seeds/seed_users.go` will insert a handful of demo users (idempotent).
 4) Start the API: `go run main.go` (listens on `:8080`).
 
+### Live reload with CompileDaemon
+- Install once: `go install github.com/githubnemo/CompileDaemon@latest` (binary ends up in `$GOPATH/bin`).
+- From the project root, rebuild and restart on change:
+```bash
+CompileDaemon -command="./go-arcaptcha-service"
+```
+This watches your source tree, rebuilds the binary, and reruns the service whenever files change.
+
 ### Docker one-liner
 Build and run (reads `.env` from project root, runs migrations by default, optional seeding):
 ```bash
